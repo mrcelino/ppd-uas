@@ -20,13 +20,7 @@ export const useSensorWebSocket = ({
       console.log('WebSocket connected, subscribing to sensor:', machineId);
       emit('subscribe:sensor', { machineId });
 
-      toast({
-        title: 'Connected',
-        description: 'Real-time sensor updates enabled',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
+
     },
     onDisconnect: () => {
       console.log('WebSocket disconnected');

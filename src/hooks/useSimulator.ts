@@ -42,22 +42,10 @@ export const useSimulator = () => {
       await simulatorService.startNormal();
 
       updateSimulatorState(true);
-      toast({
-        title: 'Simulator Started',
-        description: 'Normal sensor data simulation started for all machines',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+
     } catch (error) {
       console.error('Error starting normal simulator:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to start simulator',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+
     } finally {
       setStartNormalLoading(false);
     }
@@ -74,13 +62,7 @@ export const useSimulator = () => {
       await simulatorService.startAnomaly(machineId);
 
       updateSimulatorState(true);
-      toast({
-        title: 'Anomaly Simulator Started',
-        description: 'Anomaly sensor data simulation started (loops every 5s)',
-        status: 'warning',
-        duration: 3000,
-        isClosable: true,
-      });
+
 
       // Then set up interval to call every 5 seconds
       intervalRef.current = setInterval(async () => {
@@ -96,13 +78,7 @@ export const useSimulator = () => {
       }, 5000);
     } catch (error) {
       console.error('Error starting anomaly simulator:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to start anomaly simulator',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+
     } finally {
       setStartAnomalyLoading(false);
     }
