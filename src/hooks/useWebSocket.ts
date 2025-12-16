@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 interface UseWebSocketOptions {
@@ -12,6 +12,18 @@ export const useWebSocket = (options: UseWebSocketOptions) => {
   const { namespace, onConnect, onDisconnect, onError } = options;
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
+
+  // Use refs to store latest callbacks to avoid re-connecting when callbacks change
+  const onConnectRef = useRef(onConnect);
+  const onDisconnectRef = useRef(onDisconnect);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when props change
+  useEffect(() => {
+    onConnectRef.current = onConnect;
+    onDisconnectRef.current = onDisconnect;
+    onErrorRef.current = onError;
+  }, [onConnect, onDisconnect, onError]);
 
   useEffect(() => {
     const wsUrl = process.env.NEXT_PUBLIC_API_WS_URL;
@@ -34,19 +46,19 @@ export const useWebSocket = (options: UseWebSocketOptions) => {
     socket.on('connect', () => {
       console.log('WebSocket connected');
       setIsConnected(true);
-      onConnect?.();
+      onConnectRef.current?.();
     });
 
     socket.on('disconnect', () => {
       console.log('WebSocket disconnected');
       setIsConnected(false);
-      onDisconnect?.();
+      onDisconnectRef.current?.();
     });
 
     socket.on('connect_error', (error) => {
       console.error('WebSocket connection error:', error);
       setIsConnected(false);
-      onError?.(error);
+      onErrorRef.current?.(error);
     });
 
     return () => {
@@ -55,21 +67,22 @@ export const useWebSocket = (options: UseWebSocketOptions) => {
         socket.disconnect();
       }
     };
-  }, [namespace, onConnect, onDisconnect, onError]);
+  }, [namespace]); // Only re-connect if namespace changes
 
-  const emit = (event: string, data?: any) => {
+  // Wrap emit, on, off in useCallback to stabilize references
+  const emit = useCallback((event: string, data?: any) => {
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, data);
     }
-  };
+  }, []);
 
-  const on = (event: string, handler: (...args: any[]) => void) => {
+  const on = useCallback((event: string, handler: (...args: any[]) => void) => {
     socketRef.current?.on(event, handler);
-  };
+  }, []);
 
-  const off = (event: string, handler?: (...args: any[]) => void) => {
+  const off = useCallback((event: string, handler?: (...args: any[]) => void) => {
     socketRef.current?.off(event, handler);
-  };
+  }, []);
 
   return {
     socket: socketRef.current,
