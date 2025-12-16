@@ -51,7 +51,7 @@ export default function Default() {
   const textColor = useColorModeValue('secondaryGray.900', 'white');
   
   const [sensorData, setSensorData] = useState<SensorData[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -133,7 +133,7 @@ export default function Default() {
       xaxis: {
         categories: latestMachineData.map((d) => {
             // Safe access to nested property
-            // @ts-expect-error machine might be populated
+
             return d.machine?.name?.replace('Machine', '') || d.productId || 'Unknown';
         }),
         show: false,
@@ -356,7 +356,7 @@ export default function Default() {
                                     boxShadow="0px 5px 10px rgba(67, 24, 255, 0.1)"
                                  />
                                  <Text fontWeight="bold" color={textColor} fontSize="sm">
-                                    {/* @ts-expect-error machine populated */}
+
                                     {machine.machine?.name || machine.productId}
                                  </Text>
                              </Flex>
